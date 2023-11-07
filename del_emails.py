@@ -38,7 +38,7 @@ for mail in delete_emails:
     imap.store(mail, '+FLAGS', '\\Deleted')
 
 
-#imap.expunge()
+imap.expunge()
 
 imap.close()
 
