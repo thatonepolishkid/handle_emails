@@ -12,7 +12,7 @@ password = input('Please input your password: ') #I will need to create some for
 
 email_folder = (input('Please select the folder you wish to have emails deleted from: ')).upper() #for my use case it will be 'Inbox' first
 
-pattern = input('Please input a portion of the emails that you do not want to be deleted here: ') #for my use case it will be ([\w]*@red-thread.com)
+emails_to_not_delete = input('Please input a portion of the emails that you do not want to be deleted here: ') #for my use case it will be ([\w]*@red-thread.com)
 
 email_host = input('Please input your email provider: ').strip()
 
@@ -26,21 +26,19 @@ login = imap.login(username, password)
 
 imap.select(email_folder)
 
-status, messages = imap.search(None, 'BEFORE "09-MAY-2023')
+emails_to_not_delete = imap.search(None, 'FROM', (f'{emails_to_not_delete}'))
 
-for mail in messages:
-    for response in msg:
-        if isinstance(response, tuple):
-            msg = email.message_from_bytes(response[1])
-            
-            subject = decode_header(msg["subject"])[0][0]
-            
-            if isinstance(subject, bytes):
-                subject = subject.decode()
-            print("Deleting", subject)
-    imap.store(mail, "+FLAGS", "\\dELETED")
-    
-imap.expunge()
+delete_emails = imap.search(None, 'BEFORE, "09-MAY-2023"')
+
+for letter in emails_to_not_delete:
+    imap.uid('COPY', letter, 'Archive')
+    imap.uid('STORE', letter, '+FLAGS', '(\Deleted)')
+
+for mail in delete_emails:
+    imap.store(mail, '+FLAGS', '\\Deleted')
+
+
+#imap.expunge()
 
 imap.close()
 
