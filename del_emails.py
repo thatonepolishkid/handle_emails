@@ -4,6 +4,8 @@ from email.header import decode_header
 import re
 
 period = '.'
+pattern = r'((?<!\S)[_]*[w]*[\d]*[\W]*)'
+
 username = input('Please input your Username: ') #I will need to create some form of security so that this is encrypted
 
 password = input('Please input your password: ') #I will need to create some form of security so that this is encrypted
@@ -16,13 +18,15 @@ email_host = input('Please input your email provider: ').strip()
 
 email_provider_imap = f'imap.{email_host.lstrip(pattern).lstrip(period)}'
 
+print(email_provider_imap)
+
 imap = imaplib.IMAP4_SSL(email_provider_imap)
 
 login = imap.login(username, password)
 
 imap.select(email_folder)
 
-status, messages = imap.search(None, 'BEFORE "09-SEPT-2023')
+status, messages = imap.search(None, 'BEFORE "09-MAY-2023')
 
 for mail in messages:
     for response in msg:
