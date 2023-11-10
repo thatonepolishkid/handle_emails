@@ -66,5 +66,5 @@ def delete_these(user, creds, email_provider):
 
         # Increases x by 1 so that there is no accidental infinite loop
         x += 1
-# Calls the function for execution
+#calls the function for execution
 delete_these(username, password, email_provider_imap)
