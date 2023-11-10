@@ -16,68 +16,37 @@ password = getpass.getpass() #I will need to create some form of security so tha
 
 email_folder = (input('Please select the folder you wish to have emails deleted from: ')).upper() #for my use case it will be 'Inbox' first
 
-#emails_to_not_delete = input('Please input a portion of the emails that you do not want to be deleted here: ') #for my use case it will be ([\w]*@red-thread.com)
-
 email_host = input('Please input your email provider: ').strip()
 
 email_provider_imap = f'imap.{email_host.lstrip(pattern).lstrip(period)}'
 
-imap = imaplib.IMAP4_SSL(email_provider_imap)
-
-login = imap.login(username, password)
-
-imap.select(email_folder)
 
 
 
 
-def delete_emails_loops(user, creds):
-    for _ in range(26):
-        _, delete_emails_ids = imap.search(None, '1000:2000')
-        delete_emails_ids = delete_emails_ids[0].split(b' ')
-        for msg_id in delete_emails_ids:
-                imap.store(msg_id, '+FLAGS', '\\Deleted')
-                print('Marking for deletion: ', msg_id)
-                imap.expunge()
-                imap.logout()
-                imap.login(user, creds)
+def delete_these(user, creds, email_provider):
+    x = 0
+    while x < 26:
+        imap = imaplib.IMAP4_SSL(email_provider)
+        imap.login(user, creds)
+        print('logged in!')
+        imap.select(email_folder)
+        _, emails_to_delete = imap.search(None, 'BEFORE "01-JAN-2023"')
 
-delete_emails_loops(username, password)
+        emails_to_delete = emails_to_delete[0].split()
+        
+        for mail in emails_to_delete:
+            imap.store(mail, '+FLAGS', '\\Deleted')
+            print('Deleting emails marked for deletion: ', mail)
+        print('Loop complete!')
+        imap.expunge()
+        imap.close()
+        imap.logout()
+        print('Logged out!')
+        time.sleep(3)
+        x += 1
 
-
-
-
-
-def select_emails(emails_to_delete):
-    emails_to_delete = emails_to_delete[0].split(b' ')
-    #emails_to_keep = emails_to_keep[0].split(b' ')
-    for msg_id in emails_to_delete:
-        imap.store(msg_id, '+FLAGS', '\\Deleted')
-        print('Marking for deletion: ', msg_id)
-'''for msg_id in emails_to_keep: imap.store(msg_id, '-FLAGS', '\\Deleted')'''
-
-
-
-# TODO Rename this here and in `email_del_cycle`
-def extracted_from_email_del_cycle_8(msg_id):
-    imap.store(msg_id, '+FLAGS', '\\Deleted')
-    imap.logout()
-    print('Logging out.')
-    time.sleep(5)
-    print('Sleeping the cycle for ')
-    imap.login(username, password)
-    print('Logging in!')
-
-def email_del_cycle(mail_to_delete):
-    if mail_to_delete == False:
-            print('Theres no emails here?!')
-    while mail_to_delete == True:
-        for msg_id in mail_to_delete:
-            extracted_from_email_del_cycle_8(msg_id)
+delete_these(username, password, email_provider_imap)
 
 
 
-
-imap.close()
-
-imap.logout()
